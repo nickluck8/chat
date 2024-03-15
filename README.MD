@@ -5,6 +5,7 @@ This is a small chat application service that provides APIs for user authenticat
 ## Project startup
 
 - you must have Docker installed and running
+- `git pull https://github.com/nickluck8/chat.git`
 - `mvn spring-boot:run -Pdocker-compose`
 
 
