@@ -1,5 +1,6 @@
 package com.example.chat.model;
 
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -7,6 +8,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public record Room(
         @Id
         String id,
-        String name
+        @NotBlank(message = "Name must not be blank") String name
 ) {
 }

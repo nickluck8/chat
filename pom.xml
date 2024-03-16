@@ -42,7 +42,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-docker-compose</artifactId>
         </dependency>
-<!--        - User authentication with basic username/password login. The credentials can be hardcoded.-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!--        - User authentication with basic username/password login. The credentials can be hardcoded.-->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>

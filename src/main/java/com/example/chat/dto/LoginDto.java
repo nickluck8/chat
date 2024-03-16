@@ -1,8 +1,12 @@
 package com.example.chat.dto;
 
 
+import jakarta.validation.constraints.Size;
+
 public record LoginDto(
-        //can add validation
+        @Size(min = 3, message = "Username must be at least 3 characters long")
         String username,
-        String password) {
+        @Size(min = 5, message = "Password must be at least 5 characters long")
+        String password
+) {
 }

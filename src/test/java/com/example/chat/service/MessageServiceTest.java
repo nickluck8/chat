@@ -139,7 +139,12 @@ public class MessageServiceTest {
 
     @Test
     public void testDeleteMessage() {
+        Message message = new Message();
         String messageId = "messageId";
+        message.setUsername("username");
+        message.setId(messageId);
+        when(messageRepository.existsById(messageId)).thenReturn(true);
+        when(messageRepository.findById(messageId)).thenReturn(Optional.of(message));
         messageService.deleteMessage(messageId);
         verify(messageRepository, times(1)).deleteById(messageId);
     }

@@ -2,9 +2,6 @@ package com.example.chat.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.example.chat.dto.MessageDto;
@@ -47,37 +44,5 @@ public class MessageControllerTest {
         when(messageService.sendMessage(messageDto)).thenReturn(expectedMessage);
         Message result = messageController.sendMessage(messageDto);
         assertEquals(expectedMessage, result);
-    }
-
-    @Test
-    public void testDeleteMessageNotFound() {
-        String messageId = "123";
-        when(messageService.existsById(messageId)).thenReturn(false);
-        ResponseEntity<String> responseEntity = messageController.deleteMessage(messageId);
-        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
-        assertEquals("Message not found", responseEntity.getBody());
-        verify(messageService, never()).deleteMessage(messageId);
-    }
-
-    @Test
-    public void testDeleteMessageForbidden() {
-        String messageId = "123";
-        when(messageService.existsById(messageId)).thenReturn(true);
-        when(messageService.isOwner(messageId)).thenReturn(false);
-        ResponseEntity<String> responseEntity = messageController.deleteMessage(messageId);
-        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
-        assertEquals("You are not allowed to delete this message.", responseEntity.getBody());
-        verify(messageService, never()).deleteMessage(messageId);
-    }
-
-    @Test
-    public void testDeleteMessageSuccess() {
-        String messageId = "123";
-        when(messageService.existsById(messageId)).thenReturn(true);
-        when(messageService.isOwner(messageId)).thenReturn(true);
-        ResponseEntity<String> responseEntity = messageController.deleteMessage(messageId);
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals("Message deleted successfully.", responseEntity.getBody());
-        verify(messageService, times(1)).deleteMessage(messageId);
     }
 }

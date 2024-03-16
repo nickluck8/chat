@@ -1,6 +1,8 @@
 package com.example.chat.service;
 
 import com.example.chat.dto.MessageDto;
+import com.example.chat.exception.ForbiddenException;
+import com.example.chat.exception.MessageNotFoundException;
 import com.example.chat.model.Message;
 import com.example.chat.repository.MessageRepository;
 import java.time.LocalDateTime;
@@ -49,6 +51,14 @@ public class MessageService {
     }
 
     public void deleteMessage(String messageId) {
+        if (!existsById(messageId)) {
+            throw new MessageNotFoundException();
+        }
+
+        if (!isOwner(messageId)) {
+            throw new ForbiddenException("You are not allowed to delete this message.");
+        }
+
         messageRepository.deleteById(messageId);
     }
 

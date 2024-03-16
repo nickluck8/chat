@@ -1,5 +1,6 @@
 package com.example.chat.service;
 
+import com.example.chat.exception.RoomNotFoundException;
 import com.example.chat.model.Room;
 import com.example.chat.repository.RoomRepository;
 import java.util.List;
@@ -18,6 +19,6 @@ public class RoomService {
 
     public Room getRoomById(String roomId) {
         return roomRepository.findById(roomId)
-                .orElseThrow(() -> new RuntimeException("Room not found"));
+                .orElseThrow(RoomNotFoundException::new);
     }
 }

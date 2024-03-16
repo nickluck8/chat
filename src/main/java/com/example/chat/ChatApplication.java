@@ -29,15 +29,11 @@ public class ChatApplication implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
 
         userRepository.save(new User(1L, "user", passwordEncoder.encode("1")));
-        // Save some data to the rooms collection
         Room room = new Room("default", "General");
         Room saved = mongoTemplate.save(room);
-
-
-        // Save some data to the messages collection
         Message message = new Message();
         message.setRoomId(saved.id());
         message.setUsername("user");

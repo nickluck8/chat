@@ -1,5 +1,6 @@
 package com.example.chat.security;
 
+import com.example.chat.exception.ParseTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -42,18 +43,15 @@ public class JwtTokenProvider {
         );
     }
 
-    // get username from Jwt token
     public String getUsername(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        String username = claims.getSubject();
-        return username;
+        return claims.getSubject();
     }
 
-    // validate Jwt token
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
@@ -61,8 +59,8 @@ public class JwtTokenProvider {
                     .build()
                     .parse(token);
             return true;
-        } catch (MalformedJwtException ex) {
-            throw new RuntimeException("Failed to parse token");
+        } catch (Exception ex) {
+            throw new ParseTokenException();
         }
     }
 }
