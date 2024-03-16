@@ -8,6 +8,14 @@ This is a small chat application service that provides APIs for user authenticat
 - `git pull https://github.com/nickluck8/chat.git`
 - `mvn spring-boot:run -Pdocker-compose`
 
+## How to use: 
+1. POST ``/api/v1/login``
+2. You will get auth token which you need to use in each request, if you use included postman collection token will be set automatically
+3. GET ``/api/rooms`` in order to get available rooms, there is only one room by default
+4. GET `/api/messages?roomId=default` to get messages by roomId, it supports pagination
+5. DELETE `api/messages/65f49da54eabc60c5e0edb09` to delete message by id, only owner can delete
+6. POST `/api/messages` to send message, body must include content and roomdId
+
 
 
 ## Authentication
