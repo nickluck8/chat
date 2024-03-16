@@ -11,6 +11,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,16 +46,12 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception {
-        return http.csrf().disable()
-                .authorizeHttpRequests()
-                .requestMatchers("/api/v1/login").permitAll()
-                .and()
-                .authorizeHttpRequests().requestMatchers("/api/**")
-                .authenticated()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+        return http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
+                        authorizationManagerRequestMatcherRegistry.requestMatchers("/api/v1/login").permitAll()
+                                .requestMatchers("/api/**")
+                                .authenticated())
+                .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class).build();
 

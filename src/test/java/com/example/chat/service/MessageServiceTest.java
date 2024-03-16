@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,8 +24,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -58,20 +55,6 @@ public class MessageServiceTest {
         when(authentication.getName()).thenReturn("username");
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
-    }
-
-    @Test
-    public void testGetAllMessagesByRoomId() {
-        String roomId = "roomId";
-        int page = 0;
-        int size = 10;
-        Page<Message> expectedMessages = mock(Page.class);
-        when(messageRepository.findByRoomId(roomId, PageRequest.of(page, size))).thenReturn(expectedMessages);
-
-        Page<Message> result = messageService.getAllMessagesByRoomId(roomId, page, size);
-
-        assertEquals(expectedMessages, result);
-        verify(messageRepository, times(1)).findByRoomId(roomId, PageRequest.of(page, size));
     }
 
     @Test

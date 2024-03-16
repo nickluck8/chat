@@ -3,6 +3,7 @@ package com.example.chat.controller;
 import com.example.chat.dto.JwtAuthResponse;
 import com.example.chat.dto.LoginDto;
 import com.example.chat.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class LoginController {
 
     @PostMapping("/api/v1/login")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<JwtAuthResponse> login(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<JwtAuthResponse> login(@RequestBody @Valid LoginDto loginDto) {
         String token = authService.login(loginDto);
 
         JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();

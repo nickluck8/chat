@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ public class MessageService {
     private final MessageRepository messageRepository;
 
     public Page<Message> getAllMessagesByRoomId(String roomId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "timestamp"));
         return messageRepository.findByRoomId(roomId, pageable);
     }
 

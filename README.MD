@@ -9,7 +9,11 @@ This is a small chat application service that provides APIs for user authenticat
 - `mvn spring-boot:run -Pdocker-compose`
 
 ## How to use: 
-1. POST ``/api/v1/login``
+1. POST ``/api/v1/login`` with body 
+  ``{
+   "username":"user",
+   "password":"1"
+   }``
 2. You will get auth token which you need to use in each request, if you use included postman collection token will be set automatically
 3. GET ``/api/rooms`` in order to get available rooms, there is only one room by default
 4. GET `/api/messages?roomId=default` to get messages by roomId, it supports pagination
@@ -86,3 +90,12 @@ This endpoint retrieves a list of all chat rooms.
 
 
 For more information check postman collection
+
+
+## TODO items: 
+1. Concurrency can be added
+2. Enhance validation and error message
+3. Multiple improvements on search
+4. Caching
+5. WebSocket
+6. Add more tests

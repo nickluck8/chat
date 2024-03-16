@@ -3,6 +3,7 @@ package com.example.chat.controller;
 import com.example.chat.dto.MessageDto;
 import com.example.chat.model.Message;
 import com.example.chat.service.MessageService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class MessageController {
     }
 
     @PostMapping
-    public Message sendMessage(@RequestBody MessageDto message) {
+    public Message sendMessage(@RequestBody @Valid MessageDto message) {
         return messageService.sendMessage(message);
     }
 

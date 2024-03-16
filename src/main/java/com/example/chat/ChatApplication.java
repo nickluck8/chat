@@ -31,7 +31,7 @@ public class ChatApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
-        userRepository.save(new User(1L, "user", passwordEncoder.encode("1")));
+        userRepository.save(new User(1L, "user", passwordEncoder.encode("12345")));
         Room room = new Room("default", "General");
         Room saved = mongoTemplate.save(room);
         Message message = new Message();
