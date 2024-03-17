@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/messages")
 public class MessageController {
+
     private final MessageService messageService;
 
     @Autowired
@@ -27,22 +29,22 @@ public class MessageController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Message>> getAllMessages(
+    public Mono<ResponseEntity<Page<Message>>> getAllMessages(
             @RequestParam(value = "roomId") String roomId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Page<Message> messages = messageService.getAllMessagesByRoomId(roomId, page, size);
-        return ResponseEntity.ok(messages);
+        return messageService.getAllMessagesByRoomId(roomId, page, size)
+                .map(ResponseEntity::ok);
     }
 
     @PostMapping
-    public Message sendMessage(@RequestBody @Valid MessageDto message) {
+    public Mono<Message> sendMessage(@RequestBody @Valid MessageDto message) {
         return messageService.sendMessage(message);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteMessage(@PathVariable("id") String messageId) {
-        messageService.deleteMessage(messageId);
-        return ResponseEntity.ok("Message deleted successfully.");
+    public Mono<ResponseEntity<String>> deleteMessage(@PathVariable("id") String messageId) {
+        return messageService.deleteMessage(messageId)
+                .thenReturn(ResponseEntity.ok("Message deleted successfully."));
     }
 }

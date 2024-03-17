@@ -1,5 +1,6 @@
 package com.example.chat.controller;
 
+import com.example.chat.exception.AuthenticationException;
 import com.example.chat.exception.ForbiddenException;
 import com.example.chat.exception.MessageNotFoundException;
 import com.example.chat.exception.ParseTokenException;
@@ -21,6 +22,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MessageNotFoundException.class)
     public ResponseEntity<String> handleMessageNotFoundException(MessageNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<String> handleMessageNotFoundException(AuthenticationException ex) {
+        return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).body(ex.getMessage());
     }
 
     @ExceptionHandler(ParseTokenException.class)

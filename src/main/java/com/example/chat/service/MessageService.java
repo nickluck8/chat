@@ -7,14 +7,16 @@ import com.example.chat.model.Message;
 import com.example.chat.repository.MessageRepository;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Optional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -22,49 +24,66 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
 
-    public Page<Message> getAllMessagesByRoomId(String roomId, int page, int size) {
+    public Mono<Page<Message>> getAllMessagesByRoomId(String roomId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "timestamp"));
-        return messageRepository.findByRoomId(roomId, pageable);
+        return messageRepository.findByRoomId(roomId, pageable)
+                .collectList()
+                .flatMap(messages -> {
+                    int totalMessages = messages.size();
+                    int totalPages = (int) Math.ceil((double) totalMessages / size);
+                    int start = Math.max(0, Math.min(page * size, totalMessages));
+                    int end = Math.min(start + size, totalMessages);
+                    List<Message> pageMessages = messages.subList(start, end);
+                    return Mono.just(new PageImpl<>(pageMessages, pageable, totalMessages));
+                });
     }
 
-    public Message sendMessage(MessageDto messageDto) {
-        Message message = new Message();
-        message.setRoomId(messageDto.roomId());
-        message.setUsername(getUsernameFromContext());
-        message.setContent(messageDto.content());
-        message.setTimestamp(LocalDateTime.now().atOffset(ZoneOffset.UTC).toInstant().toEpochMilli());
-        return messageRepository.save(message);
+    public Mono<Message> sendMessage(MessageDto messageDto) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(securityContext -> {
+                    Message message = new Message();
+                    message.setRoomId(messageDto.roomId());
+                    message.setUsername(securityContext.getAuthentication().getName());
+                    message.setContent(messageDto.content());
+                    message.setTimestamp(LocalDateTime.now().atOffset(ZoneOffset.UTC).toInstant().toEpochMilli());
+                    return message;
+                })
+                .flatMap(messageRepository::save);
     }
 
-
-    public boolean existsById(String messageId) {
+    public Mono<Boolean> existsById(String messageId) {
         return messageRepository.existsById(messageId);
     }
 
-    public boolean isOwner(String messageId) {
-        String username = getUsernameFromContext();
-        Optional<Message> messageOptional = messageRepository.findById(messageId);
-        if (messageOptional.isPresent()) {
-            Message message = messageOptional.get();
-            return message.getUsername().equals(username);
-        }
-        return false;
+    public Mono<Boolean> isOwner(String messageId) {
+        return ReactiveSecurityContextHolder.getContext()
+                .flatMap(securityContext -> {
+                    String username = securityContext.getAuthentication().getName();
+                    return messageRepository.findById(messageId)
+                            .map(message -> message.getUsername().equals(username));
+                });
     }
 
-    public void deleteMessage(String messageId) {
-        if (!existsById(messageId)) {
-            throw new MessageNotFoundException();
-        }
-
-        if (!isOwner(messageId)) {
-            throw new ForbiddenException("You are not allowed to delete this message.");
-        }
-
-        messageRepository.deleteById(messageId);
+    public Mono<Void> deleteMessage(String messageId) {
+        return existsById(messageId)
+                .flatMap(exists -> {
+                    if (!exists) {
+                        return Mono.error(new MessageNotFoundException());
+                    }
+                    return isOwner(messageId)
+                            .flatMap(isOwner -> {
+                                if (!isOwner) {
+                                    return Mono.error(new ForbiddenException("You are not allowed to delete this message."));
+                                }
+                                return messageRepository.deleteById(messageId).then();
+                            });
+                });
     }
 
-    private String getUsernameFromContext() {
-        return SecurityContextHolder.getContext().getAuthentication().getName();
-    }
+    public static Page<Message> createPage(List<Message> content, Pageable pageable) {
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), content.size());
 
+        return new PageImpl<>(content.subList(start, end), pageable, content.size());
+    }
 }
